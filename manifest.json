@@ -2,6 +2,7 @@
 ---
 
 {
+  "hi": "{{ site.baseurl }}",
   "name": "Start WhatsApp Chat",
   "short_name": "Start WhatsApp Chat",
   "description": "Easily start a WhatsApp Chat with people not in your contact list",
