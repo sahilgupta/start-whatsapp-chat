@@ -1,8 +1,11 @@
+---
+---
+
 {
   "name": "Start WhatsApp Chat",
   "short_name": "Start WhatsApp Chat",
   "description": "Easily start a WhatsApp Chat with people not in your contact list",
-  "start_url": "/",
+  "start_url": "{{ site.baseurl }}/",
   "display": "standalone",
   "theme_color": "#3f51b5",
   "background_color": "#3f51b5",
