@@ -16,15 +16,7 @@
     <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
     <meta name="theme-color" content="#1ebea5">
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5023892-11"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-5023892-11');
-    </script>
+    <script src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
 
     <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -55,6 +47,36 @@
             border-color: #168a78;             
         }
     </style>
+
+    <script type="text/javascript">
+        /// Get the country code corresponding to user's country
+        var ipInfoAPI = 'http://ip-api.com/json/?fields=status,message,countryCode';
+        var countryCode = "IN";
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if(response.status === 'success') {
+                    console.log('countryCode found: ' + response.countryCode);
+                    countryCode = response.countryCode;
+                }
+            }
+        };
+        xhr.open('GET', ipInfoAPI, true);
+        xhr.send();
+
+        function validateNumber(){
+            var inputNumber = document.getElementById("phoneNumber").value;
+            var parsedNumber = libphonenumber.parsePhoneNumberFromString(inputNumber, countryCode)
+
+            if (parsedNumber && parsedNumber.isValid() === true) {
+                var formattedNumber = parsedNumber.formatInternational();
+                document.getElementById("phoneNumber").value = formattedNumber;
+            }
+        }
+
+    </script>
     <script>
         if ("serviceWorker" in navigator) {
                   if (navigator.serviceWorker.controller) {
@@ -83,10 +105,10 @@
                             Easily start a WhatsApp chat with people not in your contact list.
                         </div>
 
-                        <form id="chat-form" action="https://api.WhatsApp.com/send" method="get">
+                        <form id="chat-form" action="https://api.WhatsApp.com/send" method="get" onsubmit="validateNumber();">
                             <div class="form-group">
                                 <label for="phoneNumber">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNumber" name="phone" required> <small id="phoneHelp" class="form-text text-muted">Country code required e.g. 91 for India</small>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phone" required>
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
                         </form>
