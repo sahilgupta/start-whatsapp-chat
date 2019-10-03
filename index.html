@@ -1,54 +1,109 @@
 ---
 ---
 
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Hello!</title>
+
+<head>
+    <title>WhatsApp Unsaved Numbers</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="My App description">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Start a WhatsApp chat with people not in your contacts list">
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
     <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
-    
-    <meta name="theme-color" content="#3f51b5">
+    <meta name="theme-color" content="#1ebea5">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5023892-11"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-5023892-11');
+    </script>
 
     <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="My App">
+    <meta name="application-name" content="WhatsApp Unsaved Numbers">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="My App">
+    <meta name="apple-mobile-web-app-title" content="WhatsApp Unsaved Numbers">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-     <script>
-        if ("serviceWorker" in navigator) {
-          if (navigator.serviceWorker.controller) {
-            console.log("[PWA Builder] active service worker found, no need to register");
-          } else {
-            // Register the service worker
-            navigator.serviceWorker
-              .register("service-worker.js", {
-                scope: "{{ site.baseurl }}/"
-              })
-              .then(function (reg) {
-                console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
-              });
-          }
+    
+    <style type="text/css">
+        html,body {
+            height: 100%;
         }
-    </script>
 
-  </head>  
-  <body>
-        <p>This allows you to send Whatsapp messages to unsaved numbers.</p>
-        <form id="chat-form" action="https://api.WhatsApp.com/send" method="get">
-        	<input type="text" name="phone">
-        	<button type="submit">Start Chat</button>
-        </form>
-  </body>
+        .btn-whatsapp{
+            background-color: #1ebea5;
+            border-color: #1ebea5;            
+        }
+        .btn-whatsapp:not(:disabled):not(.disabled):active{
+            background-color: #168a78;
+            border-color: #168a78;             
+        }
+        .btn-whatsapp:not(:disabled):not(.disabled):hover{
+            background-color: #168a78;
+            border-color: #168a78;             
+        }
+    </style>
+    <script>
+        if ("serviceWorker" in navigator) {
+                  if (navigator.serviceWorker.controller) {
+                    console.log("[PWA Builder] active service worker found, no need to register");
+                  } else {
+                    // Register the service worker
+                    navigator.serviceWorker
+                      .register("service-worker.js", {
+                        scope: "{{ site.baseurl }}/"
+                      })
+                      .then(function (reg) {
+                        console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
+                      });
+                  }
+                }
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div class="col-12 align-self-center">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="pb-5">
+                            Easily start a WhatsApp chat with people not in your contact list.
+                        </div>
+
+                        <form id="chat-form" action="https://api.WhatsApp.com/send" method="get">
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phone" required> <small id="phoneHelp" class="form-text text-muted">Country code required e.g. 91 for India</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
+                        </form>
+
+                        <div class="pt-5">
+                        </div>
+                        <div class="pt-5">
+                        </div>
+                        <div class="pt-5">
+                            To save this on your home screen, go to Share -> Add to Home Screen
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>
