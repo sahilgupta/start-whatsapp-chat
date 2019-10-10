@@ -66,13 +66,34 @@
         xhr.open('GET', ipInfoAPI, true);
         xhr.send();
 
-        function validateNumber(){
-            var inputNumber = document.getElementById("phoneNumber").value;
+        function validateNumber(inputNumber){
             var parsedNumber = libphonenumber.parsePhoneNumberFromString(inputNumber, countryCode)
-
             if (parsedNumber && parsedNumber.isValid() === true) {
-                var formattedNumber = parsedNumber.formatInternational();
-                document.getElementById("phoneNumber").value = formattedNumber;
+                return parsedNumber;
+            } else {
+                return null;
+            }
+        }
+        
+        function prettifyVisibleNumber(parsedNumber){
+            document.getElementById("visiblePhoneNumber").value = parsedNumber.formatInternational();
+        }
+
+        function submitHiddenForm(parsedNumber){
+            // Remove the "+" from the E.164 formatted number to make this 
+            // play well with Android 
+            var phone = parsedNumber.number.substring(1);
+            document.getElementById("hiddenPhoneNumber").value = phone;
+            document.forms.hiddenForm.submit();
+        }
+
+        function startChat(event){
+            event.preventDefault();
+            var inputNumber = document.getElementById("visiblePhoneNumber").value;
+            var parsedNumber = validateNumber(inputNumber);
+            if (parsedNumber){
+                prettifyVisibleNumber(parsedNumber);
+                submitHiddenForm(parsedNumber);
             }
         }
 
@@ -104,11 +125,15 @@
                         <div class="pb-5">
                             Easily start a WhatsApp chat with people not in your contact list.
                         </div>
+                    
+                        <form id="hiddenForm" action="https://api.WhatsApp.com/send" method="get">
+                            <input type="tel" id="hiddenPhoneNumber" name="phone" hidden="true">
+                        </form>
 
-                        <form id="chat-form" action="https://api.WhatsApp.com/send" method="get" onsubmit="validateNumber();">
+                        <form onsubmit="startChat(event);">
                             <div class="form-group">
-                                <label for="phoneNumber">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNumber" name="phone" required>
+                                <label for="visiblePhoneNumber">Phone Number</label>
+                                <input type="tel" class="form-control" id="visiblePhoneNumber" required>
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
                         </form>
