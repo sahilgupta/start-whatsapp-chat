@@ -8,18 +8,19 @@
     <title>WhatsApp Unsaved Numbers</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no">
     <meta name="description" content="Start a WhatsApp chat with people not in your contacts list">
 
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://ipapi.co">
     <link rel="preconnect" href="https://api.WhatsApp.com">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ site.baseurl }}/static/bootstrap.min.css">
 
     <script src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
 
     <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
+    <script src="{{ site.baseurl }}/static/ua-parser.min.js"></script>
     <meta name="theme-color" content="#1ebea5">
 
 
@@ -36,8 +37,13 @@
     <style type="text/css">
         html,body {
             height: 100%;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        #ios_share {
+            height: 1.8em;
+        }
         .btn-whatsapp{
             background-color: #1ebea5;
             border-color: #1ebea5;            
@@ -150,15 +156,14 @@
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
                         </form>
-
-                        <div class="pt-5">
+<!--                         <div class="pt-5">
                         </div>
                         <div class="pt-5">
                         </div>
-                        <div class="pt-5" id="addToHome" style="display:none">
-                            <button type="button" class="btn btn-outline-info">Add to Home Screen</button>
-                        </div>
-
+ -->                </div>
+                </div>
+                <div class="card fixed-bottom" style="border:none">
+                    <div class="card-body" id="addToHomeMessage" style="display:none">
                     </div>
                 </div>
             </div>
@@ -167,66 +172,82 @@
 </body>
 
 <script type="text/javascript">
-            /**
-         * Determine the mobile operating system.
-         * From: https://stackoverflow.com/a/21742107
-         * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
-         *
-         * @returns {String}
-         */
-        function getMobileOperatingSystem() {
-          var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-            // Windows Phone must come first because its UA also contains "Android"
-            if (/windows phone/i.test(userAgent)) {
-                return "Windows Phone";
-            } else if (/android/i.test(userAgent)) {
-                return "Android";
-            }
-            // iOS detection from: http://stackoverflow.com/a/9039885/177710
-            else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                return "iOS";
-            }
-            return "unknown";
-        }
-
+        var parser = new UAParser();
+        var result = parser.getResult();
         var message;
-        if (getMobileOperatingSystem() === "Android"){
-            message = "addToHome"
-        } else if(getMobileOperatingSystem() === "iOS"){
-            message = "To save this on your home screen, go to Share -> Add to Home Screen"
-        } else{
-            message = "To save this on your home screen, go to Share -> Add to Home Screen"
+
+        function isRunningStandalone() {
+            // standalone checking in Android and iOS
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone == true) {
+                return true;
+            }            
+            return false;
         }
 
-        let deferredPrompt;
-        const addBtn = document.getElementById('addToHome');
-        // addBtn.style.display = 'none';
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e;
-            // Update UI to notify the user they can add to home screen
-            addBtn.style.display = 'block';
+        if (isRunningStandalone()) {
+            heap.addEventProperties('runningStandalone', true);
+        }
+        else {
+            // Show install prompts/message only if the app is not installed
+            const addToHomeMessage = document.getElementById('addToHomeMessage')
 
-            addBtn.addEventListener('click', (e) => {
-                // hide our user interface that shows our A2HS button
-                addBtn.style.display = 'none';
-                // Show the prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                      console.log('User accepted the A2HS prompt');
-                    } else {
-                      console.log('User dismissed the A2HS prompt');
-                    }
-                    deferredPrompt = null;
+            if (result.os.name === "Android"){
+                // Add event listener for Android
+                let deferredPrompt;
+
+                message = '<button type="button" id="addToHome" class="btn btn-outline-info">Install this App</button>';
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    heap.track('addToHome', {'status': 'prompt triggered'});
+                    // Prevent Chrome 67 and earlier from automatically showing the prompt
+                    e.preventDefault();
+                    // Stash the event so it can be triggered later.
+                    deferredPrompt = e;
+                    // Update UI to notify the user they can add to home screen
+                    addToHomeMessage.innerHTML = message;
+                    addToHomeMessage.style.display = 'block';
+
+                    addToHomeMessage.addEventListener('click', (e) => {
+                        // hide our user interface that shows our A2HS button
+                        addToHomeMessage.style.display = 'none';
+                        // Show the prompt
+                        deferredPrompt.prompt();
+                        // Wait for the user to respond to the prompt
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                heap.track('addToHome', {'status': 'prompt accepted'});
+                                console.log('User accepted the A2HS prompt');
+                            } else {
+                                heap.track('addToHome', {'status': 'prompt ignored'});
+                                console.log('User dismissed the A2HS prompt');
+                            }
+                            deferredPrompt = null;
+                        });
+                    });
                 });
-        });
-        });
+
+
+            } else if(result.os.name === "iOS") {
+                if (result.browser.name === "Mobile Safari") {
+                    message = "To install this app on your iPhone, tap <img src='{{ site.baseurl }}/images/ios-share-icon.png' id='ios_share'> and then 'Add to Home Screen'";
+                } else {
+                    message = "To install this app on your iPhone, open this in Safari";
+                }
+                addToHomeMessage.innerHTML = message;
+                addToHomeMessage.style.display = 'block';
+
+            } else {
+                message = "You can install this app on your phone";
+                document.getElementById('addToHomeMessage').innerHTML = message;
+            }
+        }
+
+    // Logging
+    function logPaste(event) {
+        heap.track('phoneNumber', {'source': 'paste'});
+    }
+
+    document.getElementById('visiblePhoneNumber').onpaste = logPaste;
 
 </script>
 </html>
