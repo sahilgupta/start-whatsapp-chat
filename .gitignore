@@ -1,0 +1,9 @@
+*.gem
+*.rbc
+.bundle
+.config
+Gemfile.lock
+.jekyll-metadata
+_vendor/
+_site/
+.sass-cache/
