@@ -1,10 +1,11 @@
-# Whatsapp Unsaved numbers
+# WhatsApp Unsaved numbers
 
-Most of us, at some point of time, need to send a WhatsApp message to numbers not saved in your contact list.
-Sadly, WhatsApp app doesn't support this out-of-the box.
+Have you ever saved an unknown number to WhatsApp them a couple of lines?
 
-This app allows you to easily start a chat with such phone numbers
+Remember the last time you saved a delivery person's number as "Temp" to share your location?
+
+No more. This app allows you to quickly start a chat with such phone numbers
 
 Being a Progressive Web App (PWA) it can be added to your home screen to be easily accessed when needed. 
 
-Head over to https://sahilgupta.github.io/start-whatsapp-chat/ from your phone
+To use, head over to https://sahilgupta.github.io/start-whatsapp-chat/
