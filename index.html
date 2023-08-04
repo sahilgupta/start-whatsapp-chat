@@ -1,41 +1,31 @@
 ---
 ---
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>WhatsApp Unsaved Numbers</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no">
     <meta name="description" content="Start a WhatsApp chat with people not in your contacts list">
+    <meta name="theme-color" content="#1ebea5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="WhatsApp Unsaved Numbers">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="WhatsApp Unsaved Numbers">
+
+    <title>WhatsApp Unsaved Numbers</title>
 
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://ipapi.co">
     <link rel="preconnect" href="https://api.WhatsApp.com">
-
     <link rel="stylesheet" href="{{ site.baseurl }}/static/bootstrap.min.css">
-
-    <script src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
-
     <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
-    <script src="{{ site.baseurl }}/static/ua-parser.min.js"></script>
-    <meta name="theme-color" content="#1ebea5">
-
-
-    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="WhatsApp Unsaved Numbers">
-
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="WhatsApp Unsaved Numbers">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    
+
+    <!-- Custom styles for this page -->
     <style type="text/css">
-        html,body {
+        html, body {
             height: 100%;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -44,97 +34,33 @@
         #ios_share {
             height: 1.8em;
         }
-        .btn-whatsapp{
+
+        .btn-whatsapp {
             background-color: #1ebea5;
-            border-color: #1ebea5;            
+            border-color: #1ebea5;
         }
-        .btn-whatsapp:not(:disabled):not(.disabled):active{
+
+        .btn-whatsapp:not(:disabled):not(.disabled):active,
+        .btn-whatsapp:not(:disabled):not(.disabled):hover {
             background-color: #168a78;
-            border-color: #168a78;             
-        }
-        .btn-whatsapp:not(:disabled):not(.disabled):hover{
-            background-color: #168a78;
-            border-color: #168a78;             
+            border-color: #168a78;
         }
     </style>
 
-    <script type="text/javascript">
-        if (document.location.hostname.search("sahilgupta.github.io") !== -1) {
-            window.heap=window.heap||[],heap.load=function(e,t){window.heap.appid=e,window.heap.config=t=t||{};var r=t.forceSSL||"https:"===document.location.protocol,a=document.createElement("script");a.type="text/javascript",a.async=!0,a.src=(r?"https:":"http:")+"//cdn.heapanalytics.com/js/heap-"+e+".js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(a,n);for(var o=function(e){return function(){heap.push([e].concat(Array.prototype.slice.call(arguments,0)))}},p=["addEventProperties","addUserProperties","clearEventProperties","identify","resetIdentity","removeEventProperty","setEventProperties","track","unsetEventProperty"],c=0;c<p.length;c++)heap[p[c]]=o(p[c])};
-              heap.load("1031989618");
-        } else {
-            window.heap=window.heap||[],heap.load=function(e,t){window.heap.appid=e,window.heap.config=t=t||{};var r=t.forceSSL||"https:"===document.location.protocol,a=document.createElement("script");a.type="text/javascript",a.async=!0,a.src=(r?"https:":"http:")+"//cdn.heapanalytics.com/js/heap-"+e+".js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(a,n);for(var o=function(e){return function(){heap.push([e].concat(Array.prototype.slice.call(arguments,0)))}},p=["addEventProperties","addUserProperties","clearEventProperties","identify","resetIdentity","removeEventProperty","setEventProperties","track","unsetEventProperty"],c=0;c<p.length;c++)heap[p[c]]=o(p[c])};
-            heap.load("841248980");
-        }
-    </script>
-
-    <script type="text/javascript">
-        /// Get the country code corresponding to user's country
-        var ipInfoAPI = 'https://ipapi.co/json/';
-        var countryCode = "IN";
-
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var response = JSON.parse(this.responseText);
-                console.log('countryCode found: ' + response.country);
-                countryCode = response.country;
-            }
-        };
-        xhr.open('GET', ipInfoAPI, true);
-        xhr.send();
-
-        function validateNumber(inputNumber){
-            var parsedNumber = libphonenumber.parsePhoneNumberFromString(inputNumber, countryCode)
-            if (parsedNumber && parsedNumber.isValid() === true) {
-                return parsedNumber;
-            } else {
-                return null;
-            }
-        }
-        
-        function prettifyVisibleNumber(parsedNumber){
-            document.getElementById("visiblePhoneNumber").value = parsedNumber.formatInternational();
-        }
-
-        function submitHiddenForm(parsedNumber){
-            // Remove the "+" from the E.164 formatted number to make this 
-            // play well with Android 
-            var phone = parsedNumber.number.substring(1);
-            document.getElementById("hiddenPhoneNumber").value = phone;
-            document.forms.hiddenForm.submit();
-        }
-
-        function startChat(event){
-            event.preventDefault();
-            var inputNumber = document.getElementById("visiblePhoneNumber").value;
-            var parsedNumber = validateNumber(inputNumber);
-            if (parsedNumber){
-                prettifyVisibleNumber(parsedNumber);
-                submitHiddenForm(parsedNumber);
-            }
-        }
-
-    </script>
+    <!-- Service worker registration -->
     <script>
-        // This is the service worker with the Cache-first network
         if ("serviceWorker" in navigator) {
-                  if (navigator.serviceWorker.controller) {
-                    console.log("[PWA Builder] active service worker found, no need to register");
-                  } else {
-                    // Register the service worker
-                    navigator.serviceWorker
-                      .register("service-worker.js", {
-                        scope: "{{ site.baseurl }}/"
-                      })
-                      .then(function (reg) {
-                        console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
-                      });
-                  }
-                }
+            if (!navigator.serviceWorker.controller) {
+                navigator.serviceWorker.register("service-worker.js", {
+                    scope: "{{ site.baseurl }}/"
+                })
+                .then(function(reg) {
+                    console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
+                });
+            }
+        }
     </script>
 </head>
-
 <body>
     <div class="container-fluid h-100">
         <div class="row h-100 justify-content-center">
@@ -144,11 +70,13 @@
                         <div class="pb-5">
                             WhatsApp people not in your contact list
                         </div>
-                    
+
+                        <!-- Hidden form -->
                         <form id="hiddenForm" action="https://api.WhatsApp.com/send" method="get">
                             <input type="tel" id="hiddenPhoneNumber" name="phone" hidden="true">
                         </form>
 
+                        <!-- Visible form -->
                         <form onsubmit="startChat(event);">
                             <div class="form-group">
                                 <label for="visiblePhoneNumber">Phone Number</label>
@@ -156,98 +84,21 @@
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
                         </form>
-<!--                         <div class="pt-5">
-                        </div>
-                        <div class="pt-5">
-                        </div>
- -->                </div>
-                </div>
-                <div class="card fixed-bottom" style="border:none">
-                    <div class="card-body" id="addToHomeMessage" style="display:none">
                     </div>
+                </div>
+
+                <div class="card fixed-bottom" style="border:none">
+                    <div class="card-body" id="addToHomeMessage" style="display:none"></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- External scripts -->
+    <script src="{{ site.baseurl }}/static/ua-parser.min.js"></script>
+    <script src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
+
+    <!-- Additional scripts -->
+    <script type="text/javascript" src="{{ site.baseurl }}/static/main.js"></script>
 </body>
-
-<script type="text/javascript">
-        var parser = new UAParser();
-        var result = parser.getResult();
-        var message;
-
-        function isRunningStandalone() {
-            // standalone checking in Android and iOS
-            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone == true) {
-                return true;
-            }            
-            return false;
-        }
-
-        if (isRunningStandalone()) {
-            heap.addEventProperties('runningStandalone', true);
-        }
-        else {
-            // Show install prompts/message only if the app is not installed
-            const addToHomeMessage = document.getElementById('addToHomeMessage')
-
-            if (result.os.name === "Android"){
-                // Add event listener for Android
-                let deferredPrompt;
-
-                message = '<button type="button" id="addToHome" class="btn btn-outline-info">Install this App</button>';
-
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    heap.track('addToHome', {'status': 'prompt triggered'});
-                    // Prevent Chrome 67 and earlier from automatically showing the prompt
-                    e.preventDefault();
-                    // Stash the event so it can be triggered later.
-                    deferredPrompt = e;
-                    // Update UI to notify the user they can add to home screen
-                    addToHomeMessage.innerHTML = message;
-                    addToHomeMessage.style.display = 'block';
-
-                    addToHomeMessage.addEventListener('click', (e) => {
-                        // hide our user interface that shows our A2HS button
-                        addToHomeMessage.style.display = 'none';
-                        // Show the prompt
-                        deferredPrompt.prompt();
-                        // Wait for the user to respond to the prompt
-                        deferredPrompt.userChoice.then((choiceResult) => {
-                            if (choiceResult.outcome === 'accepted') {
-                                heap.track('addToHome', {'status': 'prompt accepted'});
-                                console.log('User accepted the A2HS prompt');
-                            } else {
-                                heap.track('addToHome', {'status': 'prompt ignored'});
-                                console.log('User dismissed the A2HS prompt');
-                            }
-                            deferredPrompt = null;
-                        });
-                    });
-                });
-
-
-            } else if(result.os.name === "iOS") {
-                if (result.browser.name === "Mobile Safari") {
-                    message = "To install this app on your iPhone, tap <img src='{{ site.baseurl }}/images/ios-share-icon.png' id='ios_share'> and then 'Add to Home Screen'";
-                } else {
-                    message = "To install this app on your iPhone, open this in Safari";
-                }
-                addToHomeMessage.innerHTML = message;
-                addToHomeMessage.style.display = 'block';
-
-            } else {
-                message = "You can install this app on your phone";
-                document.getElementById('addToHomeMessage').innerHTML = message;
-            }
-        }
-
-    // Logging
-    function logPaste(event) {
-        heap.track('phoneNumber', {'source': 'paste'});
-    }
-
-    document.getElementById('visiblePhoneNumber').onpaste = logPaste;
-
-</script>
 </html>
