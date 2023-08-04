@@ -1,104 +1,85 @@
 ---
 ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no">
-    <meta name="description" content="Start a WhatsApp chat with people not in your contacts list">
-    <meta name="theme-color" content="#1ebea5">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="WhatsApp Unsaved Numbers">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="WhatsApp Unsaved Numbers">
-
-    <title>WhatsApp Unsaved Numbers</title>
-
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://ipapi.co">
-    <link rel="preconnect" href="https://api.WhatsApp.com">
-    <link rel="stylesheet" href="{{ site.baseurl }}/static/bootstrap.min.css">
+    <meta name="description" content="Start a WhatsQuick chat with people not in your contacts list">
     <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
+
+    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="WhatsQuick">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="WhatsQuick">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <!-- Custom styles for this page -->
-    <style type="text/css">
-        html, body {
-            height: 100%;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        #ios_share {
-            height: 1.8em;
-        }
-
-        .btn-whatsapp {
-            background-color: #1ebea5;
-            border-color: #1ebea5;
-        }
-
-        .btn-whatsapp:not(:disabled):not(.disabled):active,
-        .btn-whatsapp:not(:disabled):not(.disabled):hover {
-            background-color: #168a78;
-            border-color: #168a78;
-        }
-    </style>
+    <title>WhatsQuick</title>
 
     <!-- Service worker registration -->
-    <script>
+    <script type="text/javascript">
+        // Expose the variable so that it can be accessed from JS files.
+        var siteBaseURL = "{{ site.baseurl }}";
+
         if ("serviceWorker" in navigator) {
             if (!navigator.serviceWorker.controller) {
-                navigator.serviceWorker.register("service-worker.js", {
+                const swUrl = 'service-worker.js?siteBaseURL=' + encodeURIComponent(siteBaseURL);
+                navigator.serviceWorker.register(swUrl, {
                     scope: "{{ site.baseurl }}/"
                 })
                 .then(function(reg) {
-                    console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
+                    console.log("Service worker has been registered for scope: " + reg.scope);
                 });
             }
         }
     </script>
+
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://ipapi.co">
+    <link rel="preconnect" href="https://api.WhatsApp.com">
+
+    {% if jekyll.environment == "production" %}
+        <link rel="stylesheet" href="{{ site.baseurl }}/static/purged.min.css">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css">
+    {% endif %}
+
+
 </head>
-<body>
-    <div class="container-fluid h-100">
-        <div class="row h-100 justify-content-center">
-            <div class="col-lg-3 align-self-center">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="pb-5">
-                            WhatsApp people not in your contact list
-                        </div>
 
-                        <!-- Hidden form -->
-                        <form id="hiddenForm" action="https://api.WhatsApp.com/send" method="get">
-                            <input type="tel" id="hiddenPhoneNumber" name="phone" hidden="true">
-                        </form>
+<body id="body" class="bg-gray-100 overflow-hidden flex items-center justify-center h-screen">
+    <div class="bg-white w-full max-w-md rounded-lg shadow-md overflow-hidden">
+        <div class="py-4 px-6">
+            <h2 class="text-center font-bold text-gray-700 text-3xl">WhatsQuick</h2>
+            <p class="mt-1 text-center text-gray-500">WhatsApp unsaved numbers. Quickly.</p>
+            <form id="hiddenForm" action="https://api.WhatsApp.com/send" method="get">
+                <input type="tel" id="hiddenPhoneNumber" name="phone" hidden="true">
+            </form>
+            
+            <form onsubmit="startChat(event);" class="mt-16">
+                <div class="w-full mt-4">
+                    <label class="text-gray-600">Phone Number</label>
+                    <!-- autofocus doesn't work on mobile Safari :( -->
 
-                        <!-- Visible form -->
-                        <form onsubmit="startChat(event);">
-                            <div class="form-group">
-                                <label for="visiblePhoneNumber">Phone Number</label>
-                                <input type="tel" class="form-control" id="visiblePhoneNumber" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg btn-block btn-whatsapp">Chat on WhatsApp</button>
-                        </form>
-                    </div>
+                    <input type="tel" id="visiblePhoneNumber" required autofocus class="w-full px-4 py-2 mt-2 border rounded-lg text-gray-700 focus:outline-none focus:border-green-500">
                 </div>
-
-                <div class="card fixed-bottom" style="border:none">
-                    <div class="card-body" id="addToHomeMessage" style="display:none"></div>
-                </div>
-            </div>
+                <button type="submit" class="w-full block bg-green-500 hover:bg-green-400 focus:bg-green-400 text-white font-semibold rounded-lg px-4 py-3 mt-6">Chat on WhatsApp</button>
+            </form>
         </div>
     </div>
-
-    <!-- External scripts -->
-    <script src="{{ site.baseurl }}/static/ua-parser.min.js"></script>
-    <script src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
-
-    <!-- Additional scripts -->
-    <script type="text/javascript" src="{{ site.baseurl }}/static/main.js"></script>
+    <div class="fixed bottom-0 border-0 bg-white shadow rounded">
+        <div class="p-4" id="addToHomeMessage" style="display:none">
+        </div>
+    </div>
+    <script defer src="{{ site.baseurl }}/static/ua-parser.min.js"></script>
+    <script defer src="https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js"></script>
+    <script defer type="text/javascript" src="{{ site.baseurl }}/static/main.js"></script>
 </body>
 </html>

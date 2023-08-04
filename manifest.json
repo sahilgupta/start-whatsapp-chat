@@ -2,8 +2,8 @@
 ---
 
 {
-  "name": "WhatsApp Unsaved Numbers",
-  "short_name": "WhatsApp Unsaved Numbers",
+  "name": "WhatsQuick - WhatsApp Unsaved Numbers. Quickly",
+  "short_name": "WhatsQuick",
   "description": "Start a WhatsApp chat with people not in your contacts list",
   "start_url": "{{ site.baseurl }}/",
   "display": "standalone",

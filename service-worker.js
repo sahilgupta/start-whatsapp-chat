@@ -2,36 +2,42 @@
 
 const CACHE = "precache";
 
-const precacheFiles = [
-  'index.html',
-  'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
-  'https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js'
-];
 
 self.addEventListener("install", function (event) {
-  console.log("[PWA Builder] Install Event processing");
-
-  console.log("[PWA Builder] Skip waiting on install");
+  console.log('Service worker install event!');
   self.skipWaiting();
+
+  const siteBaseURL = new URL(location).searchParams.get('siteBaseURL');
+  
+  // List of files to precache
+  var precacheFiles = [
+    'index.html',
+    siteBaseURL + '/static/purged.min.css',
+    siteBaseURL + '/static/ua-parser.min.js',
+    siteBaseURL + '/static/main.js',
+    'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css',
+    'https://unpkg.com/libphonenumber-js@1.7.25/bundle/libphonenumber-mobile.js'
+  ];
 
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      console.log("[PWA Builder] Caching pages during install");
+      console.log("Caching pages during install");
       return cache.addAll(precacheFiles);
     })
   );
 });
 
-// Allow sw to control of current page
-self.addEventListener("activate", function (event) {
-  console.log("[PWA Builder] Claiming clients for current page");
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (event) => {
+  console.log('Service worker activate event!');
 });
+
 
 // If any fetch fails, it will look for the request in the cache and serve it from there first
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
 
+  console.log('Fetch intercepted for:', event.request.url);
+  
   event.respondWith(
     fromCache(event.request).then(
       function (response) {
@@ -57,7 +63,7 @@ self.addEventListener("fetch", function (event) {
             return response;
           })
           .catch(function (error) {
-            console.log("[PWA Builder] Network request failed and no cache." + error);
+            console.log("Network request failed and no cache." + error);
           });
       }
     )

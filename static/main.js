@@ -1,11 +1,17 @@
 // Heap analytics setup
 if (document.location.hostname.search("sahilgupta.github.io") !== -1) {
-    setupHeap("1031989618");
+    setupHeapAnalytics("1031989618");
 } else {
-    setupHeap("841248980");
+    setupHeapAnalytics("841248980");
 }
 
-function setupHeap(appid) {
+// Initialization
+setCountryCode();
+setupPasteLogging();
+showInstallPrompt();
+
+
+function setupHeapAnalytics(appid) {
     window.heap = window.heap || [];
     heap.load = function(e, t) {
         window.heap.appid = e, window.heap.config = t = t || {};
@@ -23,19 +29,43 @@ function setupHeap(appid) {
     heap.load(appid);
 }
 
-// Get the country code corresponding to user's country
-var ipInfoAPI = 'https://ipapi.co/json/';
-var countryCode = "IN";
-var xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        var response = JSON.parse(this.responseText);
-        console.log('countryCode found: ' + response.country);
-        countryCode = response.country;
+async function setCountryCode() {
+    const ipInfoAPI = 'https://ipapi.co/json/';
+    // Get the country code corresponding to user's country
+    try {
+        const response = await fetch(ipInfoAPI);
+        const data = await response.json();
+        window.countryCode = data.country;
+        console.log('countryCode found: ' + data.country);
+    } catch(error) {
+        window.countryCode = "IN";
+        console.error("Error fetching country code:", error);
     }
-};
-xhr.open('GET', ipInfoAPI, true);
-xhr.send();
+}
+
+function setupPasteLogging() {
+    document.getElementById('visiblePhoneNumber').addEventListener('paste', () => {
+        heap.track('phoneNumber', { 'source': 'paste' });
+    });
+}
+
+function showInstallPrompt() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const parser = new UAParser();
+    const result = parser.getResult();
+    if (isStandalone) {
+        heap.addEventProperties('runningStandalone', true);
+    } else {
+        const addToHomeMessage = document.getElementById('addToHomeMessage');
+        if (result.os.name === "Android") {
+            setupAndroidInstallPrompt();
+        } else if (result.os.name === "iOS") {
+            setupIOSInstallPrompt(result.browser.name);
+        } else {
+            addToHomeMessage.innerHTML = "You can install this app on your phone";
+        }
+    }
+}
 
 function validateNumber(inputNumber) {
     var parsedNumber = libphonenumber.parsePhoneNumberFromString(inputNumber, countryCode)
@@ -63,31 +93,6 @@ function startChat(event) {
     if (parsedNumber) {
         prettifyVisibleNumber(parsedNumber);
         submitHiddenForm(parsedNumber);
-    }
-}
-
-var parser = new UAParser();
-var result = parser.getResult();
-var message;
-
-function isRunningStandalone() {
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone == true) {
-        return true;
-    }
-    return false;
-}
-
-if (isRunningStandalone()) {
-    heap.addEventProperties('runningStandalone', true);
-} else {
-    const addToHomeMessage = document.getElementById('addToHomeMessage')
-    if (result.os.name === "Android") {
-        setupAndroidInstallPrompt();
-    } else if (result.os.name === "iOS") {
-        setupIOSInstallPrompt();
-    } else {
-        message = "You can install this app on your phone";
-        document.getElementById('addToHomeMessage').innerHTML = message;
     }
 }
 
@@ -123,9 +128,9 @@ function setupAndroidInstallPrompt() {
     });
 }
 
-function setupIOSInstallPrompt() {
-    if (result.browser.name === "Mobile Safari") {
-        message = "To install this app on your iPhone, tap <img src='{{ site.baseurl }}/images/ios-share-icon.png' id='ios_share'> and then 'Add to Home Screen'";
+function setupIOSInstallPrompt(browser) {
+    if (browser === "Mobile Safari") {
+        message = "To install this app on your iPhone, tap <img src='" + siteBaseURL + "/images/ios-share-icon.png' id='ios_share' class='align-top inline h-6'> and then 'Add to Home Screen'";
     } else {
         message = "To install this app on your iPhone, open this in Safari";
     }
@@ -133,9 +138,3 @@ function setupIOSInstallPrompt() {
     addToHomeMessage.style.display = 'block';
 }
 
-function logPaste(event) {
-    heap.track('phoneNumber', {
-        'source': 'paste'
-    });
-}
-document.getElementById('visiblePhoneNumber').onpaste = logPaste;
