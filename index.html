@@ -58,12 +58,12 @@
     <div class="bg-white w-full max-w-md rounded-lg shadow-md overflow-hidden">
         <div class="py-4 px-6">
             <h2 class="text-center font-bold text-gray-700 text-3xl">WhatsQuick</h2>
-            <p class="mt-1 text-center text-gray-500">WhatsApp unsaved numbers. Quickly.</p>
+            <p class="mt-1 text-center text-gray-500">WhatsApp <span class="italic">unsaved</span> numbers. Quickly.</p>
             <form id="hiddenForm" action="https://api.WhatsApp.com/send" method="get">
                 <input type="tel" id="hiddenPhoneNumber" name="phone" hidden="true">
             </form>
             
-            <form onsubmit="startChat(event);" class="mt-16">
+            <form onsubmit="startChat(event);" class="mt-12">
                 <div class="w-full mt-4">
                     <label class="text-gray-600">Phone Number</label>
                     <!-- autofocus doesn't work on mobile Safari :( -->
